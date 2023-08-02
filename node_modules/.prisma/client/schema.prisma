@@ -1,0 +1,342 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model api_request {
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar(100)
+  request    Json
+  response   Json
+  created_at DateTime @db.DateTime(0)
+}
+
+model auth_user {
+  id               Int                @id @default(autoincrement())
+  email            String             @unique(map: "UNIQ_A3B536FDE7927C74") @db.VarChar(180)
+  roles            Json
+  password         String             @db.VarChar(255)
+  created_at       DateTime           @db.DateTime(0)
+  updated_at       DateTime           @db.DateTime(0)
+  username         String             @db.VarChar(100)
+  client_auth_user client_auth_user[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model banner_more_profitable {
+  id                                                                                             Int                          @id @default(autoincrement())
+  banner_id                                                                                      Int?                         @unique(map: "UNIQ_377B3991684EC833")
+  slot_settings_id                                                                               Int?
+  banner_file_id                                                                                 Int?                         @unique(map: "UNIQ_377B3991C79650AF")
+  name                                                                                           String                       @db.VarChar(50)
+  game_url                                                                                       String                       @db.VarChar(255)
+  created_at                                                                                     DateTime                     @db.DateTime(0)
+  updated_at                                                                                     DateTime                     @db.DateTime(0)
+  active                                                                                         Boolean
+  banner_more_profitable_file_banner_more_profitable_banner_idTobanner_more_profitable_file      banner_more_profitable_file? @relation("banner_more_profitable_banner_idTobanner_more_profitable_file", fields: [banner_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_377B3991684EC833")
+  slot_settings                                                                                  slot_settings?               @relation(fields: [slot_settings_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_377B3991C126616D")
+  banner_more_profitable_file_banner_more_profitable_banner_file_idTobanner_more_profitable_file banner_more_profitable_file? @relation("banner_more_profitable_banner_file_idTobanner_more_profitable_file", fields: [banner_file_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_377B3991C79650AF")
+
+  @@index([slot_settings_id], map: "IDX_377B3991C126616D")
+}
+
+model banner_more_profitable_file {
+  id                                                                                        Int                     @id @default(autoincrement())
+  file                                                                                      String                  @db.VarChar(255)
+  upload_at                                                                                 DateTime                @db.DateTime(0)
+  banner_more_profitable_banner_more_profitable_banner_idTobanner_more_profitable_file      banner_more_profitable? @relation("banner_more_profitable_banner_idTobanner_more_profitable_file")
+  banner_more_profitable_banner_more_profitable_banner_file_idTobanner_more_profitable_file banner_more_profitable? @relation("banner_more_profitable_banner_file_idTobanner_more_profitable_file")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model bet_operations {
+  id                 Int        @id @default(autoincrement())
+  user_id            Int
+  slot_game_id       Int
+  bet_transaction_id String     @db.VarChar(100)
+  status             String     @db.VarChar(50)
+  amount             Float
+  round_id           String?    @db.VarChar(100)
+  created_at         DateTime   @db.DateTime(0)
+  updated_at         DateTime   @db.DateTime(0)
+  user               user       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_A840F359A76ED395")
+  slot_games         slot_games @relation(fields: [slot_game_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_A840F359A89BBA1")
+
+  @@index([user_id], map: "IDX_A840F359A76ED395")
+  @@index([slot_game_id], map: "IDX_A840F359A89BBA1")
+}
+
+model casino_most_popular {
+  id                             Int                              @id @default(autoincrement())
+  qty_lines                      Int
+  qty_columns                    Int
+  casino_most_popular_slot_games casino_most_popular_slot_games[]
+  slot_settings                  slot_settings?
+}
+
+model casino_most_popular_slot_games {
+  casino_most_popular_id Int
+  slot_games_id          Int
+  slot_games             slot_games          @relation(fields: [slot_games_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_83E2A20846AAA7E0")
+  casino_most_popular    casino_most_popular @relation(fields: [casino_most_popular_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_83E2A208BC698957")
+
+  @@id([casino_most_popular_id, slot_games_id])
+  @@index([slot_games_id], map: "IDX_83E2A20846AAA7E0")
+  @@index([casino_most_popular_id], map: "IDX_83E2A208BC698957")
+}
+
+model client {
+  id                                    Int                @id @default(autoincrement())
+  settings_id                           Int?               @unique(map: "UNIQ_C744045559949888")
+  key_id_prod                           String?            @db.VarChar(255)
+  key_secret_prod                       String?            @db.VarChar(255)
+  key_id_stage                          String?            @db.VarChar(255)
+  key_secret_stage                      String?            @db.VarChar(255)
+  currency                              String?            @db.VarChar(10)
+  language                              String?            @db.VarChar(100)
+  url_return                            String?            @db.VarChar(255)
+  created_at                            DateTime           @db.DateTime(0)
+  updated_at                            DateTime           @db.DateTime(0)
+  name                                  String?            @db.VarChar(100)
+  prod_callback                         String?            @db.VarChar(100)
+  stage_callback                        String?            @db.VarChar(100)
+  settings_client_settings_idTosettings settings?          @relation("client_settings_idTosettings", fields: [settings_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_C744045559949888")
+  client_auth_user                      client_auth_user[]
+  settings_settings_client_idToclient   settings[]         @relation("settings_client_idToclient")
+  user                                  user[]
+}
+
+model client_auth_user {
+  client_id    Int
+  auth_user_id Int
+  client       client    @relation(fields: [client_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_4895E6F219EB6921")
+  auth_user    auth_user @relation(fields: [auth_user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_4895E6F2E94AF366")
+
+  @@id([client_id, auth_user_id])
+  @@index([client_id], map: "IDX_4895E6F219EB6921")
+  @@index([auth_user_id], map: "IDX_4895E6F2E94AF366")
+}
+
+model doctrine_migration_versions {
+  version        String    @id
+  executed_at    DateTime? @db.DateTime(0)
+  execution_time Int?
+}
+
+model file {
+  id        Int      @id @default(autoincrement())
+  file      String   @db.VarChar(255)
+  upload_at DateTime @db.DateTime(0)
+}
+
+model layout_colors {
+  id          Int       @id @default(autoincrement())
+  settings_id Int?
+  name        String    @db.VarChar(100)
+  hexadecimal String    @db.VarChar(20)
+  settings    settings? @relation(fields: [settings_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_B986D45959949888")
+
+  @@index([settings_id], map: "IDX_B986D45959949888")
+}
+
+model live_casino_most_popular {
+  id                                  Int                                   @id @default(autoincrement())
+  qty_lines                           Int
+  qty_columns                         Int
+  live_casino_most_popular_slot_games live_casino_most_popular_slot_games[]
+  slot_settings                       slot_settings?
+}
+
+model live_casino_most_popular_slot_games {
+  live_casino_most_popular_id Int
+  slot_games_id               Int
+  live_casino_most_popular    live_casino_most_popular @relation(fields: [live_casino_most_popular_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_125C5FB730D65363")
+  slot_games                  slot_games               @relation(fields: [slot_games_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_125C5FB746AAA7E0")
+
+  @@id([live_casino_most_popular_id, slot_games_id])
+  @@index([live_casino_most_popular_id], map: "IDX_125C5FB730D65363")
+  @@index([slot_games_id], map: "IDX_125C5FB746AAA7E0")
+}
+
+model messenger_messages {
+  id           BigInt    @id @default(autoincrement())
+  body         String    @db.LongText
+  headers      String    @db.LongText
+  queue_name   String    @db.VarChar(190)
+  created_at   DateTime  @db.DateTime(0)
+  available_at DateTime  @db.DateTime(0)
+  delivered_at DateTime? @db.DateTime(0)
+
+  @@index([delivered_at], map: "IDX_75EA56E016BA31DB")
+  @@index([available_at], map: "IDX_75EA56E0E3BD61CE")
+  @@index([queue_name], map: "IDX_75EA56E0FB7336F0")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model operations {
+  id                Int       @id @default(autoincrement())
+  active            Boolean
+  whithdraw_minimum Float
+  withdraw_maximum  Float
+  withdraw_fee      Float
+  deposit_minimum   Float
+  deposit_maximum   Float
+  created_at        DateTime  @db.DateTime(0)
+  updated_at        DateTime  @db.DateTime(0)
+  settings          settings?
+}
+
+model provider {
+  id             Int          @id @default(autoincrement())
+  name           String       @db.VarChar(100)
+  client_percent Int?
+  base_percent   Int?
+  slot_games     slot_games[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model referral_history {
+  id                                      Int       @id @default(autoincrement())
+  referral_id                             Int
+  user_id                                 Int?
+  game                                    String?   @db.VarChar(100)
+  amount                                  Float?
+  type                                    String?   @db.VarChar(100)
+  available                               Boolean?
+  created_at                              DateTime? @db.DateTime(0)
+  updated_at                              DateTime? @db.DateTime(0)
+  user_referral_history_referral_idTouser user      @relation("referral_history_referral_idTouser", fields: [referral_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_7E9A2C6D3CCAA4B7")
+  user_referral_history_user_idTouser     user?     @relation("referral_history_user_idTouser", fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_7E9A2C6DA76ED395")
+
+  @@index([referral_id], map: "IDX_7E9A2C6D3CCAA4B7")
+  @@index([user_id], map: "IDX_7E9A2C6DA76ED395")
+}
+
+model referral_settings {
+  id                Int     @id @default(autoincrement())
+  cpa               Int?
+  rev_share_percent Int?
+  referral_type     String? @db.VarChar(10)
+  user              user?
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model settings {
+  id                                  Int             @id @default(autoincrement())
+  operations_id                       Int?            @unique(map: "UNIQ_E545A0C59384C38A")
+  slot_settings_id                    Int?            @unique(map: "UNIQ_E545A0C5C126616D")
+  client_id                           Int
+  created_at                          DateTime        @db.DateTime(0)
+  updated_at                          DateTime        @db.DateTime(0)
+  client_client_settings_idTosettings client?         @relation("client_settings_idTosettings")
+  layout_colors                       layout_colors[]
+  client_settings_client_idToclient   client          @relation("settings_client_idToclient", fields: [client_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_E545A0C519EB6921")
+  operations                          operations?     @relation(fields: [operations_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_E545A0C59384C38A")
+  slot_settings                       slot_settings?  @relation(fields: [slot_settings_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_E545A0C5C126616D")
+
+  @@index([client_id], map: "IDX_E545A0C519EB6921")
+}
+
+model slot_games {
+  id                                  Int                                   @id @default(autoincrement())
+  provider_id                         Int
+  uuid                                String                                @db.VarChar(255)
+  name                                String                                @db.VarChar(100)
+  image                               String                                @db.VarChar(255)
+  type                                String                                @db.VarChar(50)
+  has_lobby                           Boolean
+  is_mobile                           Boolean
+  has_freespins                       Boolean
+  has_tables                          Boolean
+  freespin_valid_until_full_day       Boolean
+  slug                                String?                               @db.VarChar(100)
+  bet_operations                      bet_operations[]
+  casino_most_popular_slot_games      casino_most_popular_slot_games[]
+  live_casino_most_popular_slot_games live_casino_most_popular_slot_games[]
+  provider                            provider                              @relation(fields: [provider_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_9196047CA53A8AA")
+
+  @@index([provider_id], map: "IDX_9196047CA53A8AA")
+}
+
+model slot_settings {
+  id                          Int                       @id @default(autoincrement())
+  casino_most_popular_id      Int?                      @unique(map: "UNIQ_3410C156BC698957")
+  live_casino_most_popular_id Int?                      @unique(map: "UNIQ_3410C15630D65363")
+  banner_more_profitable      banner_more_profitable[]
+  settings                    settings?
+  live_casino_most_popular    live_casino_most_popular? @relation(fields: [live_casino_most_popular_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_3410C15630D65363")
+  casino_most_popular         casino_most_popular?      @relation(fields: [casino_most_popular_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_3410C156BC698957")
+}
+
+model user {
+  id                                                  Int                  @id @default(autoincrement())
+  wallet_id                                           Int                  @unique(map: "UNIQ_8D93D649712520F3")
+  client_id                                           Int
+  referral_id                                         Int?
+  referral_settings_id                                Int?                 @unique(map: "UNIQ_8D93D6493E58724C")
+  external_id                                         Int
+  username                                            String               @db.VarChar(100)
+  balance                                             Decimal?             @db.Decimal(10, 2)
+  created_at                                          DateTime             @db.DateTime(0)
+  updated_at                                          DateTime             @db.DateTime(0)
+  session                                             String?              @db.VarChar(100)
+  cpa_collected                                       Boolean?
+  is_referrer                                         Boolean?
+  bet_operations                                      bet_operations[]
+  referral_history_referral_history_referral_idTouser referral_history[]   @relation("referral_history_referral_idTouser")
+  referral_history_referral_history_user_idTouser     referral_history[]   @relation("referral_history_user_idTouser")
+  client                                              client               @relation(fields: [client_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_8D93D64919EB6921")
+  user                                                user?                @relation("userTouser", fields: [referral_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_8D93D6493CCAA4B7")
+  other_user                                          user[]               @relation("userTouser")
+  referral_settings                                   referral_settings?   @relation(fields: [referral_settings_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_8D93D6493E58724C")
+  wallet                                              wallet               @relation(fields: [wallet_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_8D93D649712520F3")
+  wallet_transaction                                  wallet_transaction[]
+
+  @@index([client_id], map: "IDX_8D93D64919EB6921")
+  @@index([referral_id], map: "IDX_8D93D6493CCAA4B7")
+}
+
+model wallet {
+  id                 Int                  @id @default(autoincrement())
+  balance            Float?
+  bonus              Float?
+  bet                Float?
+  withdraw           Float?
+  deposit            Float?
+  user               user?
+  wallet_transaction wallet_transaction[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model wallet_transaction {
+  id            Int       @id @default(autoincrement())
+  wallet_id     Int
+  amount        Float
+  created_at    DateTime  @db.DateTime(0)
+  updated_at    DateTime  @db.DateTime(0)
+  deleted_at    DateTime? @db.DateTime(0)
+  type          String    @db.VarChar(50)
+  api_collected Boolean?
+  user_id       Int?
+  uuid          String    @db.VarChar(255)
+  wallet        wallet    @relation(fields: [wallet_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_7DAF972712520F3")
+  user          user?     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_7DAF972A76ED395")
+
+  @@index([wallet_id], map: "IDX_7DAF972712520F3")
+  @@index([user_id], map: "IDX_7DAF972A76ED395")
+}
+
+model salsa_games {
+  id         Int       @id @default(autoincrement())
+  name       String
+  code       String
+  isSlot     Boolean   @default(false)
+  created_at DateTime  @db.DateTime(0)
+  updated_at DateTime  @db.DateTime(0)
+  deleted_at DateTime? @db.DateTime(0)
+}
